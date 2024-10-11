@@ -2,12 +2,13 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AI Chat App',
-  description: 'Chat with an AI using Next.js, GSAP, and WebGL',
+  title: 'ChatterBox',
+  description: 'Chat with ChatterBox',
 };
 
 export default function RootLayout({
@@ -25,6 +26,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
