@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,6 +26,16 @@ export default function AuthForm() {
     resolver: zodResolver(schema),
   });
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push('/chat');
+      }
+    };
+    checkAuth();
+  }, [supabase.auth, router]);
+
   const onSubmit = async (data: z.infer<typeof schema>) => {
     setIsLoading(true);
     try {
@@ -36,7 +46,8 @@ export default function AuthForm() {
           title: "Account created successfully",
           description: "You can now log in with your new account.",
         });
-        setIsSignUp(false);
+        router.push('/chat');
+        setIsSignUp(true);
       } else {
         const { error } = await supabase.auth.signInWithPassword(data);
         if (error) throw error;
@@ -57,24 +68,69 @@ export default function AuthForm() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      toast({
+        title: "Google sign-in error",
+        description: "An error occurred during Google sign-in. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTwitterSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Twitter sign-in error:', error);
+      toast({
+        title: "Twitter sign-in error",
+        description: "An error occurred during Twitter sign-in. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="space-y-4">
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" {...register('email')} />
-        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message as string}</p>}
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="space-y-4">
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" {...register('email')} />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message as string}</p>}
+        </div>
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" type="password" {...register('password')} />
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message as string}</p>}
+        </div>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Log In')}
+        </Button>
+      </form>
+      <div className="space-y-2">
+        <Button type="button" variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+          Continue with Google
+        </Button>
+        <Button type="button" variant="outline" className="w-full" onClick={handleTwitterSignIn}>
+          Continue with Twitter
+        </Button>
       </div>
-      <div>
-        <Label htmlFor="password">Password</Label>
-        <Input id="password" type="password" {...register('password')} />
-        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message as string}</p>}
-      </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Log In')}
-      </Button>
       <Button type="button" variant="link" className="w-full" onClick={() => setIsSignUp(!isSignUp)}>
         {isSignUp ? 'Already have an account? Log In' : 'Don\'t have an account? Sign Up'}
       </Button>
-    </form>
+    </div>
   );
 }

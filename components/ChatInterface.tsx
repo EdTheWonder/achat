@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { RefreshCw } from 'lucide-react';
 
 const schema = z.object({
   message: z.string().min(1),
@@ -24,6 +25,7 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasUsedOneTimeChat, setHasUsedOneTimeChat] = useState(false);
   const router = useRouter();
   const supabase = createClientComponentClient();
 
@@ -40,11 +42,13 @@ export default function ChatInterface() {
   }, [supabase.auth]);
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && hasUsedOneTimeChat) {
       toast({
-        title: "Please log in to chat",
+        title: "Please log in to continue chatting",
+        description: "You've used your one-time chat. Sign up or log in to continue.",
         variant: "destructive",
       });
+      router.push('/');
       return;
     }
 
@@ -60,6 +64,17 @@ export default function ChatInterface() {
       const response = await result.response;
       const aiMessage: Message = { role: 'ai', content: response.text() };
       setMessages(prev => [...prev, aiMessage]);
+
+      if (!isAuthenticated) {
+        setHasUsedOneTimeChat(true);
+      }
+
+      // Save chat to database if authenticated
+      if (isAuthenticated) {
+        await supabase.from('chats').insert([
+          { user_id: (await supabase.auth.getUser()).data.user?.id, message: data.message, response: response.text() }
+        ]);
+      }
     } catch (error) {
       console.error('AI response error:', error);
       toast({
@@ -69,6 +84,36 @@ export default function ChatInterface() {
     } finally {
       setIsLoading(false);
       reset();
+    }
+  };
+
+  const handleRetry = async (index: number) => {
+    if (index % 2 !== 0) return; // Only retry user messages
+    setIsLoading(true);
+    const messageToRetry = messages[index];
+    try {
+      const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_AI_STUDIO_KEY!);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+      const result = await model.generateContent(messageToRetry.content);
+      const response = await result.response;
+      const newAiMessage: Message = { role: 'ai', content: response.text() };
+      const newMessages = [...messages.slice(0, index + 1), newAiMessage];
+      setMessages(newMessages);
+
+      if (isAuthenticated) {
+        await supabase.from('chats').insert([
+          { user_id: (await supabase.auth.getUser()).data.user?.id, message: messageToRetry.content, response: response.text() }
+        ]);
+      }
+    } catch (error) {
+      console.error('AI response error:', error);
+      toast({
+        title: "Error generating AI response",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,25 +133,39 @@ export default function ChatInterface() {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="mt-8 text-center">
-        <p className="text-lg font-semibold">Please log in to use the chat.</p>
-        <Button onClick={() => router.push('/')} className="mt-4">Log In</Button>
-      </div>
-    );
-  }
+  const handleClearChat = () => {
+    setMessages([]);
+    toast({
+      title: "Chat cleared",
+      description: "All messages have been removed.",
+    });
+  };
 
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Chat Dashboard</h2>
-        <Button onClick={handleLogout} variant="outline">Logout</Button>
+        <h2 className="text-xl font-semibold">How may I help you?</h2>
+        <div className="space-x-2">
+          {messages.length > 0 && (
+            <Button onClick={handleClearChat} variant="outline">Clear Chat</Button>
+          )}
+          {isAuthenticated && (
+            <Button onClick={handleLogout} variant="outline">Logout</Button>
+          )}
+        </div>
       </div>
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {messages.map((message, index) => (
-          <div key={index} className={`p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-100 text-black'}`}>
-            <strong>{message.role === 'user' ? 'You:' : 'AI:'}</strong> {message.content}
+          <div key={index} className={`p-3 rounded-lg flex items-start ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-100 text-black'}`}>
+            <div className="flex-grow">
+              <strong className="mr-2">{message.role === 'user' ? 'User:' : 'AI:'}</strong>
+              <span>{message.content}</span>
+            </div>
+            {message.role === 'user' && (
+              <Button variant="ghost" size="sm" onClick={() => handleRetry(index)} disabled={isLoading} className="ml-2 self-end">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         ))}
       </div>
