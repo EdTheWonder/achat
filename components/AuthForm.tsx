@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Twitter, Mail } from 'lucide-react';
 
 const schema = z.object({
   email: z.string().email(),
@@ -123,9 +124,6 @@ export default function AuthForm() {
       <div className="space-y-2">
         <Button type="button" variant="outline" className="w-full" onClick={handleGoogleSignIn}>
           Continue with Google
-        </Button>
-        <Button type="button" variant="outline" className="w-full" onClick={handleTwitterSignIn}>
-          Continue with Twitter
         </Button>
       </div>
       <Button type="button" variant="link" className="w-full" onClick={() => setIsSignUp(!isSignUp)}>
