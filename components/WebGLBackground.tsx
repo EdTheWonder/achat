@@ -35,7 +35,7 @@ function AnimatedSphere() {
 
 export default function WebGLBackground() {
   return (
-    <div className="fixed inset-0 -z-10">
+    <div className="fixed inset-0 -z-10 overflow-hidden">
       <Canvas>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />

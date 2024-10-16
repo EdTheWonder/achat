@@ -156,8 +156,8 @@ export default function ChatInterface() {
       </div>
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {messages.map((message, index) => (
-          <div key={index} className={`p-3 rounded-lg flex items-start ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-100 text-black'}`}>
-            <div className="flex-grow break-words">
+          <div key={index} className={`p-3 rounded-lg flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[70%] break-words ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-100 text-black'} p-3 rounded-lg`}>
               <strong className="mr-2">{message.role === 'user' ? 'User:' : 'AI:'}</strong>
               <span>{message.content}</span>
             </div>
@@ -168,6 +168,13 @@ export default function ChatInterface() {
             )}
           </div>
         ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 text-black p-3 rounded-lg">
+              <span className="loading-dots">Thinking</span>
+            </div>
+          </div>
+        )}
       </div>
       <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
         <Input {...register('message')} placeholder="Type your message..." className="flex-grow" />
