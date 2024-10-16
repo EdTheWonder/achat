@@ -29,7 +29,7 @@ export default function Home() {
           </div>
         </div>
         <div id="whats-happening" className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg mt-8 lg:mt-0 flex flex-col items-center justify-center min-h-screen lg:min-h-0 lg:hidden">
-          <ChatFeed />
+          
         </div>
       
       </div>
