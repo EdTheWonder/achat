@@ -35,7 +35,7 @@ export default function Home() {
         <Suspense fallback={<div>Loading...</div>}>
           <WebGLBackground />
         </Suspense>
-        <div className="absolute inset-0 flex items-center justify-center p-20 lg:pr-20">
+        <div className="absolute inset-0 flex items-center p-20 lg:pr-20">
             <ChatFeed />
           </div>
         </div>
