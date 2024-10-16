@@ -34,14 +34,12 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div id="whats-happening" className="w-full lg:w-1/2 min-h-screen flex items-center justify-end lg:pr-24 relative">
-        <Suspense fallback={<div>Loading...</div>}>
-          <WebGLBackground />
-        </Suspense>
-        <div className="absolute inset-0 flex items-center justify-end p-4 lg:pr-16">
-          <div className="w-full max-w-2xl bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg overflow-y-auto" style={{ height: 'calc(100vh - 4rem)' }}>
-            <ChatFeed />
-          </div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <WebGLBackground />
+      </Suspense>
+      <div className="absolute inset-0 flex items-center justify-end p-4 lg:pr-16">
+        <div className="w-full max-w-2xl bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg overflow-y-auto" style={{ height: 'calc(100vh - 4rem)' }}>
+          <ChatFeed />
         </div>
       </div>
     </div>
