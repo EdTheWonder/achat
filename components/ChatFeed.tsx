@@ -78,7 +78,7 @@ export default function ChatFeed() {
   }, [supabase]);
 
   return (
-    <div className="space-y-4 p-2 sm:p-4 max-w-2xl mx-auto">
+    <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-20 shadow-lg">
       <h2 className="text-2xl font-bold lg">What's Happening</h2>
       <div className="space-y-8 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
         {Object.entries(groupChatsByUser(chatEntries)).map(([userId, userChats]) => (
