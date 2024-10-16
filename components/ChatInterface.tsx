@@ -183,24 +183,17 @@ export default function ChatInterface() {
       </form>
       {errors.message && <p className="text-red-500 text-sm">{errors.message.message as string}</p>}
       <div className="mt-4 overflow-hidden transition-all duration-300 ease-in-out" style={{ maxHeight: messages.length > 0 ? '0' : '1000px' }}>
-        <div className="flex justify-between items-center lg:hidden">
-          <h3 className="text-lg font-semibold mb-2">Suggestions:</h3>
-        </div>
-        
-        <div className="hidden lg:flex flex-wrap gap-2">
+        <h3 className="text-lg font-semibold mb-2">Suggestions:</h3>
+        <div className="flex flex-wrap gap-2">
           <Button onClick={() => setValue('message', "How do I make Nigerian party jollof?")} variant="outline" className="text-sm py-1 px-2">
             How do I make Nigerian party jollof?
           </Button>
-          {showMoreSuggestions && (
-            <>
-              <Button onClick={() => setValue('message', "Explain Quantum Superposition to me like I'm 5 years old")} variant="outline" className="text-sm py-1 px-2">
-                Explain Quantum Superposition to me like I'm 5 years old
-              </Button>
-              <Button onClick={() => setValue('message', "What are some fun activities to do in Port Harcourt?")} variant="outline" className="text-sm py-1 px-2">
-                What are some fun activities to do in Port Harcourt?
-              </Button>
-            </>
-          )}
+          <Button onClick={() => setValue('message', "Explain Quantum Superposition to me like I'm 5 years old")} variant="outline" className="text-sm py-1 px-2">
+            Explain Quantum Superposition to me like I'm 5 years old
+          </Button>
+          <Button onClick={() => setValue('message', "What are some fun activities to do in Port Harcourt?")} variant="outline" className="text-sm py-1 px-2">
+            What are some fun activities to do in Port Harcourt?
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import AuthForm from '@/components/AuthForm';
-import LeftAlignedSphere from '@/components/LeftAlignedSphere';
 import ChatInterface from '@/components/ChatInterface';
 import ChatFeed from '@/components/ChatFeed';
 import WebGLBackground from '@/components/WebGLBackground';
@@ -22,22 +21,16 @@ export default function Home() {
           </div>
         </div>
         <div id="try-ai" className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 self-start hidden lg:block">Try AI</h2>
-          <h2 className="text-xl font-semibold mb-4 self-start lg:hidden">Try AI</h2>
+          <h2 className="text-xl font-semibold mb-4 self-start">Try AI</h2>
           <div>
             <ChatInterface />
-          </div>
-        </div>
-        <div id="whats-happening" className="w-full lg:hidden mt-8">
-          <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg">
-            <ChatFeed />
           </div>
         </div>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <WebGLBackground />
       </Suspense>
-      <div className="absolute inset-0 flex items-center justify-end p-4 lg:pr-16">
+      <div id="whats-happening" className="lg:absolute lg:inset-0 lg:flex lg:items-center lg:justify-end lg:p-4 lg:pr-16">
         <div className="w-full max-w-2xl bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg overflow-y-auto" style={{ height: 'calc(100vh - 4rem)' }}>
           <ChatFeed />
         </div>
