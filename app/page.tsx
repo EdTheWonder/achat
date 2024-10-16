@@ -13,9 +13,9 @@ export default function Home() {
       <div className="w-full lg:w-1/2 min-h-screen flex flex-col items-center justify-between p-4 lg:p-16 lg:space-y-4">
         <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg mb-4 lg:mb-0 flex flex-col items-center justify-center min-h-[80vh] lg:min-h-0">
           <div className="w-full">
-            <h1 className="text-3xl font-bold mb-8 text-left">Welcome to ChatterBox</h1>
+            <h1 className="text-3xl font-bold mb-8 text-center">Welcome to ChatterBox</h1>
             <AuthForm />
-            <div className="mt-8 flex space-x-4 lg:hidden">
+            <div className="mt-8 flex space-x-4 justify-center lg:hidden">
               <TryAIButton />
               <WhatsHappeningButton />
             </div>
