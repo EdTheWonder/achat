@@ -107,17 +107,17 @@ export default function AuthForm() {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="space-y-4">
-        <div>
-          <Label htmlFor="email" className="self-start pl-1 mb-1">Email</Label>
-          <Input id="email" {...register('email')} />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message as string}</p>}
+        <div className="flex flex-col items-start space-y-1">
+          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+          <Input id="email" {...register('email')} className="w-full" />
+          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
         </div>
-        <div>
-          <Label htmlFor="password" className="self-start pl-1 mb-1">Password</Label>
-          <Input id="password" type="password" {...register('password')} />
-          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message as string}</p>}
+        <div className="flex flex-col items-start space-y-1">
+          <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+          <Input id="password" type="password" {...register('password')} className="w-full" />
+          {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message as string}</p>}
         </div>
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full mt-2" disabled={isLoading}>
           {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Log In')}
         </Button>
       </form>

@@ -22,6 +22,7 @@ export default function Home() {
           </div>
         </div>
         <div id="try-ai" className="w-full max-w-md lg:bg-white lg:bg-opacity-20 lg:backdrop-blur-lg lg:rounded-lg lg:p-6 lg:shadow-lg mt-8 lg:mt-0 flex flex-col items-center justify-center min-h-screen lg:min-h-0">
+          <h2 className="text-xl font-semibold mb-4 self-start hidden lg:block">Try AI</h2>
           <h2 className="text-xl font-semibold mb-4 self-start lg:hidden">Try AI</h2>
           <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg">
             <ChatInterface />
@@ -32,7 +33,7 @@ export default function Home() {
         </div>
       
       </div>
-      <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-center relative hidden lg:flex">
+      <div className="w-full lg:w-1/2 min-h-screen items-center justify-center relative hidden lg:flex">
         <Suspense fallback={<div>Loading...</div>}>
           <WebGLBackground />
         </Suspense>
