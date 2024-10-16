@@ -183,13 +183,11 @@ export default function ChatInterface() {
       </form>
       {errors.message && <p className="text-red-500 text-sm">{errors.message.message as string}</p>}
       <div className="mt-4 overflow-hidden transition-all duration-300 ease-in-out" style={{ maxHeight: messages.length > 0 ? '0' : '1000px' }}>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center lg:hidden">
           <h3 className="text-lg font-semibold mb-2">Suggestions:</h3>
-          <Button onClick={() => setShowMoreSuggestions(!showMoreSuggestions)} variant="link" size="sm" className="text-blue-500">
-            {showMoreSuggestions ? 'Less suggestions' : 'More suggestions'}
-          </Button>
         </div>
-        <div className="flex flex-wrap gap-2">
+        
+        <div className="hidden lg:flex flex-wrap gap-2">
           <Button onClick={() => setValue('message', "How do I make Nigerian party jollof?")} variant="outline" className="text-sm py-1 px-2">
             How do I make Nigerian party jollof?
           </Button>

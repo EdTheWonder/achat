@@ -5,9 +5,9 @@ import { Activity } from 'lucide-react';
 
 export default function WhatsHappeningButton() {
   const handleClick = () => {
-    const feedSection = document.getElementById('whats-happening');
-    if (feedSection) {
-      feedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const whatsHappeningSection = document.getElementById('whats-happening');
+    if (whatsHappeningSection) {
+      whatsHappeningSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
