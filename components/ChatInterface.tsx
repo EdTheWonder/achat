@@ -181,7 +181,7 @@ export default function ChatInterface() {
         <Button type="submit" disabled={isLoading}>Send</Button>
       </form>
       {errors.message && <p className="text-red-500 text-sm">{errors.message.message as string}</p>}
-      <div className="mt-4">
+      <div className="mt-4 lg:hidden">
         <h3 className="text-lg font-semibold">Suggestions:</h3>
         <div className="flex flex-col space-y-2">
           {["How do I make Nigerian party jollof?", "Explain Quantum Superposition to me like I'm 5 years old", "What are some fun activities to do in Port Harcourt?"].map((suggestion, index) => (
