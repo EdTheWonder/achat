@@ -143,7 +143,7 @@ export default function ChatInterface() {
 
   return (
     <div className="mt-8 space-y-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-2 sm:space-y-0">
         <h2 className="text-xl font-semibold">How may I help you?</h2>
         <div className="space-x-2">
           {messages.length > 0 && (
@@ -157,7 +157,7 @@ export default function ChatInterface() {
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {messages.map((message, index) => (
           <div key={index} className={`p-3 rounded-lg flex items-start ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-100 text-black'}`}>
-            <div className="flex-grow">
+            <div className="flex-grow break-words">
               <strong className="mr-2">{message.role === 'user' ? 'User:' : 'AI:'}</strong>
               <span>{message.content}</span>
             </div>
@@ -169,7 +169,7 @@ export default function ChatInterface() {
           </div>
         ))}
       </div>
-      <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="flex space-x-2">
+      <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
         <Input {...register('message')} placeholder="Type your message..." className="flex-grow" />
         <Button type="submit" disabled={isLoading}>Send</Button>
       </form>

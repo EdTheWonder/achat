@@ -7,24 +7,24 @@ import WebGLBackground from '@/components/WebGLBackground';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex relative">
-      <div className="w-1/2 min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex flex-col lg:flex-row relative">
+      <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md w-full">
           <h1 className="text-2xl font-bold mb-4 text-center">Welcome to ChatterBox</h1>
           <AuthForm />
-          <div className="mt-12"> {/* Increased top margin for more padding */}
+          <div className="mt-12">
             <h2 className="text-xl font-semibold mb-4">Try AI</h2>
             <ChatInterface />
           </div>
         </div>
       </div>
-      <div className="w-1/2 min-h-screen relative">
+      <div className="w-full lg:w-1/2 min-h-screen relative">
         <Suspense fallback={<div>Loading...</div>}>
           <WebGLBackground />
         </Suspense>
-      </div>
-      <div className="w-1/2.5 pl-4 overflow-y-auto max-h-screen absolute right-0 top-0 bottom-0">
-        <ChatFeed />
+        <div className="absolute inset-0 p-4 pl-20 center overflow-y-auto">
+          <ChatFeed />
+        </div>
       </div>
     </div>
   );

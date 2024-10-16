@@ -73,8 +73,8 @@ export default function ChatFeed() {
       <div className="space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
         {chatEntries.map((entry) => (
           <div key={entry.user_id + entry.created_at} className="border p-4 rounded-lg">
-            <p className="mt-2">Email: {entry.message}</p>
-            <p className="mt-2">AI: {entry.response}</p>
+            <p className="mt-2 break-words">Email: {entry.message}</p>
+            <p className="mt-2 break-words">AI: {entry.response}</p>
           </div>
         ))}
       </div>
