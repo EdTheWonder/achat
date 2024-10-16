@@ -155,47 +155,51 @@ export default function ChatInterface() {
           )}
         </div>
       </div>
-      <div className="space-y-2 max-h-[40vh] sm:max-h-[50vh] overflow-y-auto p-2 bg-gray-50 rounded-lg">
-        {messages.map((message, index) => (
-          <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] break-words ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-200 text-black'} p-2 rounded-lg text-sm`}>
-              <strong className="mr-1 text-xs">{message.role === 'user' ? 'You:' : 'AI:'}</strong>
-              <span>{message.content}</span>
+      {messages.length > 0 && (
+        <div className="space-y-2 max-h-[40vh] sm:max-h-[50vh] overflow-y-auto p-2 bg-gray-50 rounded-lg">
+          {messages.map((message, index) => (
+            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[80%] break-words ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-200 text-black'} p-2 rounded-lg text-sm`}>
+                <strong className="mr-1 text-xs">{message.role === 'user' ? 'You:' : 'AI:'}</strong>
+                <span>{message.content}</span>
+              </div>
+              {message.role === 'user' && (
+                <Button variant="ghost" size="sm" onClick={() => handleRetry(index)} disabled={isLoading} className="ml-1 self-end p-1">
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
+              )}
             </div>
-            {message.role === 'user' && (
-              <Button variant="ghost" size="sm" onClick={() => handleRetry(index)} disabled={isLoading} className="ml-1 self-end p-1">
-                <RefreshCw className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
-        ))}
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-200 text-black p-2 rounded-lg text-sm">
-              <span className="loading-dots">Thinking</span>
+          ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-200 text-black p-2 rounded-lg text-sm">
+                <span className="loading-dots">Thinking</span>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="flex space-x-2">
         <Input {...register('message')} placeholder="Type your message..." className="flex-grow text-sm" />
         <Button type="submit" disabled={isLoading} size="sm">Send</Button>
       </form>
       {errors.message && <p className="text-red-500 text-xs">{errors.message.message as string}</p>}
-      <div className="mt-2 overflow-hidden transition-all duration-300 ease-in-out" style={{ maxHeight: messages.length > 0 ? '0' : '1000px' }}>
-        <h3 className="text-sm font-semibold mb-1">Suggestions:</h3>
-        <div className="flex flex-wrap gap-1">
-          <Button onClick={() => setValue('message', "How do I make Nigerian party jollof?")} variant="outline" size="sm" className="text-xs py-1 px-2">
-            How do I make Nigerian party jollof?
-          </Button>
-          <Button onClick={() => setValue('message', "Explain Quantum Superposition to me like I'm 5 years old")} variant="outline" size="sm" className="text-xs py-1 px-2">
-            Explain Quantum Superposition to me like I'm 5 years old
-          </Button>
-          <Button onClick={() => setValue('message', "What are some fun activities to do in Port Harcourt?")} variant="outline" size="sm" className="text-xs py-1 px-2">
-            What are some fun activities to do in Port Harcourt?
-          </Button>
+      {messages.length === 0 && (
+        <div className="mt-2 overflow-hidden transition-all duration-300 ease-in-out">
+          <h3 className="text-sm font-semibold mb-1">Suggestions:</h3>
+          <div className="flex flex-wrap gap-1">
+            <Button onClick={() => setValue('message', "How do I make Nigerian party jollof?")} variant="outline" size="sm" className="text-xs py-1 px-2">
+              How do I make Nigerian party jollof?
+            </Button>
+            <Button onClick={() => setValue('message', "Explain Quantum Superposition to me like I'm 5 years old")} variant="outline" size="sm" className="text-xs py-1 px-2">
+              Explain Quantum Superposition to me like I'm 5 years old
+            </Button>
+            <Button onClick={() => setValue('message', "What are some fun activities to do in Port Harcourt?")} variant="outline" size="sm" className="text-xs py-1 px-2">
+              What are some fun activities to do in Port Harcourt?
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
