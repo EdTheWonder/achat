@@ -76,11 +76,13 @@ export default function ChatFeed() {
             <div className="flex justify-end">
               <div className="bg-blue-100 text-black p-3 rounded-lg max-w-[70%] break-words">
                 <p>User: {entry.message}</p>
+                <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
               </div>
             </div>
             <div className="flex justify-start">
               <div className="bg-gray-100 text-black p-3 rounded-lg max-w-[70%] break-words">
                 <p>AI: {entry.response}</p>
+                <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
               </div>
             </div>
           </div>

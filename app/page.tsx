@@ -10,7 +10,7 @@ import WhatsHappeningButton from '@/components/WhatsHappeningButton';
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row relative">
-      <div className="w-full lg:w-1/2 min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
+      <div className="w-full lg:w-1/2 min-h-screen flex flex-col items-center justify-start p-4 space-y-4">
         <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg mb-8 lg:mb-0 flex flex-col items-center justify-center min-h-screen lg:min-h-0">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Welcome to ChatterBox</h1>
@@ -25,9 +25,7 @@ export default function Home() {
           <h2 className="text-xl font-semibold mb-4">Try AI</h2>
           <ChatInterface />
         </div>
-        <div id="whats-happening" className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg mt-8 lg:mt-0 flex flex-col items-center justify-center min-h-screen lg:min-h-0 lg:hidden">
-          <ChatFeed />
-        </div>
+      
       </div>
       <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-center relative hidden lg:flex">
         <Suspense fallback={<div>Loading...</div>}>
