@@ -7,7 +7,7 @@ export default function WhatsHappeningButton() {
   const handleClick = () => {
     const feedSection = document.getElementById('whats-happening');
     if (feedSection) {
-      feedSection.scrollIntoView({ behavior: 'smooth' });
+      feedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 

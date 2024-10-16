@@ -28,17 +28,22 @@ export default function Home() {
             <ChatInterface />
           </div>
         </div>
-    
-      
-      </div>
-      <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-end pr-16 relative hidden lg:flex">
-        <Suspense fallback={<div>Loading...</div>}>
-          <WebGLBackground />
-        </Suspense>
-        <div className="absolute inset-0 flex items-center p-20 lg:pr-20">
+        <div id="whats-happening" className="w-full lg:hidden mt-8">
+          <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg">
             <ChatFeed />
           </div>
         </div>
       </div>
+      <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-end pr-24 relative hidden lg:flex">
+        <Suspense fallback={<div>Loading...</div>}>
+          <WebGLBackground />
+        </Suspense>
+        <div className="absolute inset-0 flex items-center justify-end pr-16">
+          <div className="w-full max-w-2xl bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg overflow-y-auto" style={{ height: 'calc(100vh - 8rem)' }}>
+            <ChatFeed />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Button } from '@chakra-ui/react';
 
 type ChatEntry = {
   user_id: string;
@@ -88,16 +89,21 @@ export default function ChatFeed() {
               <div key={entry.created_at} className="flex flex-col space-y-2 mb-4">
                 <div className="flex justify-end">
                   <div className="bg-blue-100 text-black p-3 rounded-lg max-w-[70%] break-words">
-                    <p>{entry.message}</p>
+                    <p>{entry.message.length > 200 ? `${entry.message.substring(0, 200)}...` : entry.message}</p>
                     <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="flex justify-start">
                   <div className="bg-gray-100 text-black p-3 rounded-lg max-w-[70%] break-words">
-                    <p>{entry.response}</p>
+                    <p>{entry.response.length > 200 ? `${entry.response.substring(0, 200)}...` : entry.response}</p>
                     <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
                   </div>
                 </div>
+                {(entry.message.length > 200 || entry.response.length > 200) && (
+                  <Button variant="link" size="sm" className="text-blue-500 self-end">
+                    View full chat
+                  </Button>
+                )}
               </div>
             ))}
           </div>
