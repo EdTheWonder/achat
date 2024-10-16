@@ -108,12 +108,12 @@ export default function AuthForm() {
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="space-y-4">
         <div>
-          <Label htmlFor="email" className="self-start mb-1">Email</Label>
+          <Label htmlFor="email" className="self-start pl-1 mb-1">Email</Label>
           <Input id="email" {...register('email')} />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message as string}</p>}
         </div>
         <div>
-          <Label htmlFor="password" className="self-start mb-1">Password</Label>
+          <Label htmlFor="password" className="self-start pl-1 mb-1">Password</Label>
           <Input id="password" type="password" {...register('password')} />
           {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message as string}</p>}
         </div>

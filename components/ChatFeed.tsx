@@ -83,7 +83,7 @@ export default function ChatFeed() {
       <div className="space-y-8 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
         {Object.entries(groupChatsByUser(chatEntries)).map(([userId, userChats]) => (
           <div key={userId} className="bg-white bg-opacity-10 p-4 rounded-lg">
-            <h3 className="font-semibold mb-2">User: {userEmails[userId] || 'Anonymous'}</h3>
+            <h3 className="font-semibold mb-2">User: {userEmails[userId] || userId}</h3>
             {userChats.map((entry) => (
               <div key={entry.created_at} className="flex flex-col space-y-2 mb-4">
                 <div className="flex justify-end">
