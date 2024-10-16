@@ -24,7 +24,7 @@ export default function Home() {
         <div id="try-ai" className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg">
           <h2 className="text-xl font-semibold mb-4 self-start hidden lg:block">Try AI</h2>
           <h2 className="text-xl font-semibold mb-4 self-start lg:hidden">Try AI</h2>
-          <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 shadow-lg">
+          <div>
             <ChatInterface />
           </div>
         </div>
