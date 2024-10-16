@@ -68,13 +68,21 @@ export default function ChatFeed() {
   }, [supabase]);
 
   return (
-    <div className="space-y-4 p-4 max-w-2xl mx-auto">
+    <div className="space-y-4 p-2 sm:p-4 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold">Feed</h2>
       <div className="space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
         {chatEntries.map((entry) => (
-          <div key={entry.user_id + entry.created_at} className="border p-4 rounded-lg">
-            <p className="mt-2 break-words">Email: {entry.message}</p>
-            <p className="mt-2 break-words">AI: {entry.response}</p>
+          <div key={entry.user_id + entry.created_at} className="flex flex-col space-y-2">
+            <div className="flex justify-end">
+              <div className="bg-blue-100 text-black p-3 rounded-lg max-w-[70%] break-words">
+                <p>User: {entry.message}</p>
+              </div>
+            </div>
+            <div className="flex justify-start">
+              <div className="bg-gray-100 text-black p-3 rounded-lg max-w-[70%] break-words">
+                <p>AI: {entry.response}</p>
+              </div>
+            </div>
           </div>
         ))}
       </div>

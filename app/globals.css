@@ -94,3 +94,15 @@
   33% { content: '..'; }
   66% { content: '...'; }
 }
+
+@media (max-width: 1023px) {
+  .min-h-screen {
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+  }
+
+  .min-h-screen > div {
+    scroll-snap-align: start;
+    min-height: 100vh;
+  }
+}

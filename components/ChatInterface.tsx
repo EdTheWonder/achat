@@ -143,20 +143,20 @@ export default function ChatInterface() {
 
   return (
     <div className="mt-8 space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-2 sm:space-y-0">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">How may I help you?</h2>
-        <div className="space-x-2">
+        <div className="flex flex-col space-y-2">
           {messages.length > 0 && (
-            <Button onClick={handleClearChat} variant="outline">Clear Chat</Button>
+            <Button onClick={handleClearChat} variant="outline" className="w-full">Clear Chat</Button>
           )}
           {isAuthenticated && (
-            <Button onClick={handleLogout} variant="outline">Logout</Button>
+            <Button onClick={handleLogout} variant="destructive" className="w-full">Logout</Button>
           )}
         </div>
       </div>
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {messages.map((message, index) => (
-          <div key={index} className={`p-3 rounded-lg flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[70%] break-words ${message.role === 'user' ? 'bg-blue-100 text-black' : 'bg-gray-100 text-black'} p-3 rounded-lg`}>
               <strong className="mr-2">{message.role === 'user' ? 'User:' : 'AI:'}</strong>
               <span>{message.content}</span>
