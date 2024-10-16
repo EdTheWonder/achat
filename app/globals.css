@@ -96,13 +96,15 @@
 }
 
 @media (max-width: 1023px) {
-  .min-h-screen {
-    scroll-snap-type: y mandatory;
-    overflow-y: scroll;
+  .min-h-screen > div {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .min-h-screen > div {
-    scroll-snap-align: start;
-    min-height: 100vh;
+  #try-ai, #feed {
+    min-height: auto;
+    height: auto;
   }
 }

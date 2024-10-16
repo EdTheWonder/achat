@@ -69,7 +69,7 @@ export default function ChatFeed() {
 
   return (
     <div className="space-y-4 p-2 sm:p-4 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold">Feed</h2>
+      <h2 className="text-2xl font-bold">What's Happening</h2>
       <div className="space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
         {chatEntries.map((entry) => (
           <div key={entry.user_id + entry.created_at} className="flex flex-col space-y-2">

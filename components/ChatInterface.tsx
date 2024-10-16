@@ -142,7 +142,7 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="mt-8 space-y-4">
+    <div className="mt-8 space-y-4 w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">How may I help you?</h2>
         <div className="flex flex-col space-y-2">
