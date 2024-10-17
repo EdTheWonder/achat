@@ -33,7 +33,13 @@ export default function ChatFeed() {
     const fetchChatEntries = async () => {
       const { data, error } = await supabase
         .from('chats')
-        .select('*, users:user_id(username)')
+        .select(`
+          *,
+          users:user_id (
+            username,
+            user_metadata
+          )
+        `)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -42,7 +48,7 @@ export default function ChatFeed() {
       } else {
         setChatEntries(data.map((entry: any) => ({
           ...entry,
-          username: entry.users?.username || 'Unknown User'
+          username: entry.users?.username || entry.users?.user_metadata?.username || 'Unknown User'
         })));
       }
     };
@@ -57,13 +63,13 @@ export default function ChatFeed() {
           if (payload.eventType === 'INSERT') {
             const { data: userData, error: userError } = await supabase
               .from('users')
-              .select('username')
+              .select('username, user_metadata')
               .eq('id', (payload.new as ChatEntry).user_id)
               .single();
             if (!userError) {
               setChatEntries((prevEntries) => [{
                 ...(payload.new as ChatEntry), 
-                username: userData?.username || 'Unknown User'
+                username: userData?.username || userData?.user_metadata?.username || 'Unknown User'
               }, ...prevEntries]);
             }
           } else if (payload.eventType === 'UPDATE') {
