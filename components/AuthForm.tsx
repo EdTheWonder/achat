@@ -15,7 +15,26 @@ import { Twitter, Mail } from 'lucide-react';
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/, {
+    message: "Username can only contain letters, numbers, and underscores",
+  }),
 });
+
+const isUsernameUnique = async (username: string) => {
+  const supabase = createClientComponentClient();
+  const { data, error } = await supabase
+    .from('users')
+    .select('username')
+    .eq('username', username)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error checking username uniqueness:', error);
+    return false;
+  }
+
+  return !data;
+};
 
 export default function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,14 +60,38 @@ export default function AuthForm() {
     setIsLoading(true);
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp(data);
+        const usernameUnique = await isUsernameUnique(data.username);
+        if (!usernameUnique) {
+          toast({
+            title: "Username already taken",
+            description: "Please choose a different username.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        
+        // Use Supabase's signUp method with additional data
+        const { data: authData, error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            data: {
+              username: data.username,
+            },
+          },
+        });
+
         if (error) throw error;
+
+        if (authData.user) {
+          router.push('/chat');
+        }
+
         toast({
           title: "Account created successfully",
-          description: "You can now log in with your new account.",
+          description: "Please check your email to confirm your account.",
         });
-        router.push('/chat');
-        setIsSignUp(true);
       } else {
         const { error } = await supabase.auth.signInWithPassword(data);
         if (error) throw error;
@@ -59,9 +102,13 @@ export default function AuthForm() {
       }
     } catch (error) {
       console.error('Authentication error:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       toast({
         title: "Authentication error",
-        description: "Please check your credentials and try again.",
+        description: "Please check your credentials and try again. If the problem persists, contact support.",
         variant: "destructive",
       });
     } finally {
@@ -117,6 +164,13 @@ export default function AuthForm() {
           <Input id="password" type="password" {...register('password')} className="w-full" />
           {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message as string}</p>}
         </div>
+        {isSignUp && (
+          <div className="flex flex-col items-start space-y-1">
+            <Label htmlFor="username" className="text-sm font-medium">Username</Label>
+            <Input id="username" {...register('username')} className="w-full" />
+            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message as string}</p>}
+          </div>
+        )}
         <Button type="submit" className="w-full mt-2" disabled={isLoading}>
           {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Log In')}
         </Button>

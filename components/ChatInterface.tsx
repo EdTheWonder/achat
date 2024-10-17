@@ -27,6 +27,7 @@ export default function ChatInterface() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasUsedOneTimeChat, setHasUsedOneTimeChat] = useState(false);
   const [showMoreSuggestions, setShowMoreSuggestions] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClientComponentClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -46,6 +47,16 @@ export default function ChatInterface() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata?.username) {
+        setUsername(user.user_metadata.username);
+      }
+    };
+    fetchUsername();
+  }, [supabase.auth]);
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
     if (!isAuthenticated && hasUsedOneTimeChat) {
@@ -84,8 +95,13 @@ export default function ChatInterface() {
 
       // Save chat to database if authenticated
       if (isAuthenticated) {
+        const { data: userData } = await supabase.auth.getUser();
         await supabase.from('chats').insert([
-          { user_id: (await supabase.auth.getUser()).data.user?.id, message: data.message, response: response.text() }
+          { 
+            user_id: userData.user?.id, 
+            message: data.message, 
+            response: response.text() 
+          }
         ]);
       }
     } catch (error) {
@@ -156,6 +172,11 @@ export default function ChatInterface() {
 
   return (
     <div className="mt-4 space-y-4 w-full transition-all duration-300 ease-in-out">
+      {isAuthenticated && username && (
+        <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm">
+          @{username}
+        </div>
+      )}
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-lg font-semibold">How may I help you?</h2>
         <div className="flex space-x-2">

@@ -10,6 +10,7 @@ type ChatEntry = {
   message: string;
   response: string;
   created_at: string;
+  username: string;
 };
 
 const groupChatsByUser = (entries: ChatEntry[]) => {
@@ -32,14 +33,17 @@ export default function ChatFeed() {
     const fetchChatEntries = async () => {
       const { data, error } = await supabase
         .from('chats')
-        .select('*')
+        .select('*, users(username)')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) {
         console.error('Error fetching chat entries:', error);
       } else {
-        setChatEntries(data);
+        setChatEntries(data.map((entry: any) => ({
+          ...entry,
+          username: entry.users?.username || entry.users?.user_metadata?.username || 'Unknown User'
+        })));
       }
     };
 
@@ -49,13 +53,25 @@ export default function ChatFeed() {
       .channel('public:chats')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'chats' },
-        (payload) => {
+        async (payload) => {
           if (payload.eventType === 'INSERT') {
-            setChatEntries((prevEntries) => [payload.new as ChatEntry, ...prevEntries]);
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .select('username')
+              .eq('id', (payload.new as ChatEntry).user_id)
+              .single();
+            if (!userError) {
+              setChatEntries((prevEntries) => [{
+                ...(payload.new as ChatEntry), 
+                username: userData?.username || 'Unknown User'
+              }, ...prevEntries]);
+            }
           } else if (payload.eventType === 'UPDATE') {
             setChatEntries((prevEntries) =>
               prevEntries.map((entry) =>
-                entry.id === (payload.new as ChatEntry).id ? (payload.new as ChatEntry) : entry
+                entry.id === (payload.new as ChatEntry).id 
+                  ? {...(payload.new as ChatEntry), username: entry.username || 'Unknown User'} 
+                  : entry
               )
             );
           } else if (payload.eventType === 'DELETE') {
@@ -72,23 +88,7 @@ export default function ChatFeed() {
     };
   }, [supabase]);
 
-  useEffect(() => {
-    const fetchUserEmails = async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, email');
-      if (error) {
-        console.error('Error fetching user emails:', error);
-      } else {
-        const emailMap = data.reduce<{[key: string]: string}>((acc, user) => {
-          acc[user.id] = user.email;
-          return acc;
-        }, {});
-        setUserEmails(emailMap);
-      }
-    };
-    fetchUserEmails();
-  }, [supabase]);
+
 
   const toggleChatExpansion = (userId: string, chatIndex: number) => {
     setExpandedChats(prev => ({
@@ -103,7 +103,9 @@ export default function ChatFeed() {
       <div className="space-y-8 max-h-[calc(100vh-10rem)] overflow-y-auto">
         {Object.entries(groupChatsByUser(chatEntries)).map(([userId, userChats]) => (
           <div key={userId} className="space-y-4 border-b border-gray-200 pb-8">
-            <h3 className="font-semibold">User: {userEmails[userId] || userId}</h3>
+            <h3 className="font-semibold">
+              @{userChats[0].username || 'Unknown'}
+            </h3>
             {userChats.map((entry, index) => (
               <div key={`${entry.created_at}-${index}`} className="space-y-2">
                 <div className="flex justify-end">
