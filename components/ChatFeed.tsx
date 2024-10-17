@@ -33,7 +33,7 @@ export default function ChatFeed() {
     const fetchChatEntries = async () => {
       const { data, error } = await supabase
         .from('chats')
-        .select('*, users(username)')
+        .select('*, users:user_id(username)')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -42,7 +42,7 @@ export default function ChatFeed() {
       } else {
         setChatEntries(data.map((entry: any) => ({
           ...entry,
-          username: entry.users?.username || entry.users?.user_metadata?.username || 'Unknown User'
+          username: entry.users?.username || 'Unknown User'
         })));
       }
     };
@@ -104,7 +104,7 @@ export default function ChatFeed() {
         {Object.entries(groupChatsByUser(chatEntries)).map(([userId, userChats]) => (
           <div key={userId} className="space-y-4 border-b border-gray-200 pb-8">
             <h3 className="font-semibold">
-              @{userChats[0].username || 'Unknown'}
+              @{userChats[0].username || 'Unknown User'}
             </h3>
             {userChats.map((entry, index) => (
               <div key={`${entry.created_at}-${index}`} className="space-y-2">

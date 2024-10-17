@@ -85,6 +85,19 @@ export default function AuthForm() {
         if (error) throw error;
 
         if (authData.user) {
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert({ id: authData.user.id, username: data.username });
+
+          if (insertError) {
+            console.error('Error inserting username:', insertError);
+            toast({
+              title: "Error saving username",
+              description: "Your account was created, but there was an issue saving your username.",
+              variant: "destructive",
+            });
+          }
+
           router.push('/chat');
         }
 
