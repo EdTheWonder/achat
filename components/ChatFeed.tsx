@@ -34,7 +34,7 @@ export default function ChatFeed() {
     const fetchChatEntries = async () => {
       const { data, error } = await supabase
         .from('chats')
-        .select('*, users:user_id(username)')
+        .select('*, users(username)')
         .order('created_at', { ascending: false })
         .limit(50);
 
