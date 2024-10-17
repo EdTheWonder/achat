@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'ChatterBox',
-  description: 'Chat with ChatterBox',
+  title: 'fAIcechat',
+  description: 'Chat with fAIcechat',
 };
 
 export default function RootLayout({
