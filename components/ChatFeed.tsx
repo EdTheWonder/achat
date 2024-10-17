@@ -24,6 +24,7 @@ const groupChatsByUser = (entries: ChatEntry[]) => {
 };
 
 export default function ChatFeed() {
+  console.log('ChatFeed component rendering');
   const [chatEntries, setChatEntries] = useState<ChatEntry[]>([]);
   const [userEmails, setUserEmails] = useState<{[key: string]: string}>({});
   const [expandedChats, setExpandedChats] = useState<{[key: string]: boolean}>({});
@@ -31,6 +32,7 @@ export default function ChatFeed() {
 
   useEffect(() => {
     const fetchChatEntries = async () => {
+      console.log('Fetching chat entries...');
       const { data, error } = await supabase
         .from('chats')
         .select(`
@@ -46,10 +48,13 @@ export default function ChatFeed() {
       if (error) {
         console.error('Error fetching chat entries:', error);
       } else {
-        setChatEntries(data.map((entry: any) => ({
+        console.log('Fetched chat entries:', data);
+        const processedEntries = data.map((entry: any) => ({
           ...entry,
           username: entry.users?.username || entry.users?.user_metadata?.username || 'Unknown User'
-        })));
+        }));
+        console.log('Processed chat entries:', processedEntries);
+        setChatEntries(processedEntries);
       }
     };
 
@@ -88,6 +93,8 @@ export default function ChatFeed() {
         }
       )
       .subscribe();
+
+    console.log('Setting up subscription...');
 
     return () => {
       subscription.unsubscribe();
