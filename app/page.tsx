@@ -30,7 +30,7 @@ export default function Home() {
       </Suspense>
       <div id="whats-happening" className="w-full lg:w-[calc(50%+6cm)] lg:absolute lg:inset-y-0 lg:right-0 lg:flex lg:items-center lg:justify-end p-2 lg:p-8">
         <div className="w-full bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 shadow-lg overflow-y-auto" style={{ maxHeight: 'calc(100vh - 4rem)' }}>
-        console.log('Rendering ChatFeed');
+              
           <ChatFeed />
         </div>
       </div>

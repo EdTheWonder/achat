@@ -32,29 +32,19 @@ export default function ChatFeed() {
 
   useEffect(() => {
     const fetchChatEntries = async () => {
-      console.log('Fetching chat entries...');
       const { data, error } = await supabase
         .from('chats')
-        .select(`
-          *,
-          users:user_id (
-            username,
-            user_metadata
-          )
-        `)
+        .select('*, users(username)')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) {
         console.error('Error fetching chat entries:', error);
       } else {
-        console.log('Fetched chat entries:', data);
-        const processedEntries = data.map((entry: any) => ({
+        setChatEntries(data.map((entry: any) => ({
           ...entry,
           username: entry.users?.username || entry.users?.user_metadata?.username || 'Unknown User'
-        }));
-        console.log('Processed chat entries:', processedEntries);
-        setChatEntries(processedEntries);
+        })));
       }
     };
 
