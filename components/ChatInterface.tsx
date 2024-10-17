@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,6 +29,7 @@ export default function ChatInterface() {
   const [showMoreSuggestions, setShowMoreSuggestions] = useState(false);
   const router = useRouter();
   const supabase = createClientComponentClient();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -41,6 +42,10 @@ export default function ChatInterface() {
     };
     checkAuth();
   }, [supabase.auth]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
     if (!isAuthenticated && hasUsedOneTimeChat) {
@@ -61,7 +66,14 @@ export default function ChatInterface() {
       const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_AI_STUDIO_KEY!);
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-      const result = await model.generateContent(data.message);
+      const chat = model.startChat({
+        history: messages.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: msg.content,
+        })),
+      });
+
+      const result = await chat.sendMessage(data.message);
       const response = await result.response;
       const aiMessage: Message = { role: 'ai', content: response.text() };
       setMessages(prev => [...prev, aiMessage]);
@@ -200,6 +212,7 @@ export default function ChatInterface() {
           </div>
         </div>
       )}
+      <div ref={messagesEndRef} />
     </div>
   );
 }

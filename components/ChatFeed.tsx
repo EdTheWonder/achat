@@ -5,6 +5,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@chakra-ui/react';
 
 type ChatEntry = {
+  id: string;
   user_id: string;
   message: string;
   response: string;
@@ -47,9 +48,21 @@ export default function ChatFeed() {
     const subscription = supabase
       .channel('public:chats')
       .on('postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'chats' },
-        (payload: { new: ChatEntry }) => {
-          setChatEntries((prevEntries) => [payload.new, ...prevEntries]);
+        { event: '*', schema: 'public', table: 'chats' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setChatEntries((prevEntries) => [payload.new as ChatEntry, ...prevEntries]);
+          } else if (payload.eventType === 'UPDATE') {
+            setChatEntries((prevEntries) =>
+              prevEntries.map((entry) =>
+                entry.id === (payload.new as ChatEntry).id ? (payload.new as ChatEntry) : entry
+              )
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setChatEntries((prevEntries) =>
+              prevEntries.filter((entry) => entry.id !== (payload.old as ChatEntry).id)
+            );
+          }
         }
       )
       .subscribe();
