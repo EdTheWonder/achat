@@ -24,6 +24,7 @@ const groupChatsByUser = (entries: ChatEntry[]) => {
 export default function ChatFeed() {
   const [chatEntries, setChatEntries] = useState<ChatEntry[]>([]);
   const [userEmails, setUserEmails] = useState<{[key: string]: string}>({});
+  const [expandedChats, setExpandedChats] = useState<{[key: string]: boolean}>({});
   const supabase = createClientComponentClient();
 
   useEffect(() => {
@@ -38,7 +39,6 @@ export default function ChatFeed() {
         console.error('Error fetching chat entries:', error);
       } else {
         setChatEntries(data);
-        console.log('Fetched chat entries:', data);
       }
     };
 
@@ -49,7 +49,6 @@ export default function ChatFeed() {
       .on('postgres_changes', 
         { event: 'INSERT', schema: 'public', table: 'chats' },
         (payload: { new: ChatEntry }) => {
-          console.log('New chat entry:', payload.new);
           setChatEntries((prevEntries) => [payload.new, ...prevEntries]);
         }
       )
@@ -78,30 +77,46 @@ export default function ChatFeed() {
     fetchUserEmails();
   }, [supabase]);
 
+  const toggleChatExpansion = (userId: string, chatIndex: number) => {
+    setExpandedChats(prev => ({
+      ...prev,
+      [`${userId}-${chatIndex}`]: !prev[`${userId}-${chatIndex}`]
+    }));
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <h2 className="text-2xl font-bold">What's Happening</h2>
-      <div className="space-y-4 max-h-[calc(100vh-10rem)] overflow-y-auto">
+      <div className="space-y-8 max-h-[calc(100vh-10rem)] overflow-y-auto">
         {Object.entries(groupChatsByUser(chatEntries)).map(([userId, userChats]) => (
-          <div key={userId} className="space-y-2">
+          <div key={userId} className="space-y-4 border-b border-gray-200 pb-8">
             <h3 className="font-semibold">User: {userEmails[userId] || userId}</h3>
-            {userChats.map((entry) => (
-              <div key={entry.created_at} className="space-y-2">
+            {userChats.map((entry, index) => (
+              <div key={`${entry.created_at}-${index}`} className="space-y-2">
                 <div className="flex justify-end">
                   <div className="bg-blue-100 text-black p-2 rounded-lg max-w-[80%] break-words">
-                    <p className="text-sm">{entry.message.length > 100 ? `${entry.message.substring(0, 100)}...` : entry.message}</p>
+                    <p className="text-sm">
+                      {expandedChats[`${userId}-${index}`] ? entry.message : `${entry.message.substring(0, 100)}${entry.message.length > 100 ? '...' : ''}`}
+                    </p>
                     <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="flex justify-start">
                   <div className="bg-gray-100 text-black p-2 rounded-lg max-w-[80%] break-words">
-                    <p className="text-sm">{entry.response.length > 100 ? `${entry.response.substring(0, 100)}...` : entry.response}</p>
+                    <p className="text-sm">
+                      {expandedChats[`${userId}-${index}`] ? entry.response : `${entry.response.substring(0, 100)}${entry.response.length > 100 ? '...' : ''}`}
+                    </p>
                     <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
                   </div>
                 </div>
                 {(entry.message.length > 100 || entry.response.length > 100) && (
-                  <Button variant="link" size="sm" className="text-blue-500 self-end">
-                    View full chat
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="text-blue-500 self-end"
+                    onClick={() => toggleChatExpansion(userId, index)}
+                  >
+                    {expandedChats[`${userId}-${index}`] ? 'Collapse' : 'View full chat'}
                   </Button>
                 )}
               </div>

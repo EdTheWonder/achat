@@ -143,7 +143,7 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="mt-4 space-y-4 w-full">
+    <div className="mt-4 space-y-4 w-full transition-all duration-300 ease-in-out">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-lg font-semibold">How may I help you?</h2>
         <div className="flex space-x-2">

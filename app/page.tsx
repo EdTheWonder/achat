@@ -20,7 +20,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div id="try-ai" className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 shadow-lg">
+        <div id="try-ai" className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 shadow-lg mt-4 transition-all duration-300 ease-in-out">
           <h2 className="text-lg lg:text-xl font-semibold mb-2 lg:mb-4 self-start">Try AI</h2>
           <ChatInterface />
         </div>
@@ -28,7 +28,7 @@ export default function Home() {
       <Suspense fallback={<div>Loading...</div>}>
         <WebGLBackground />
       </Suspense>
-      <div id="whats-happening" className="w-full lg:w-1/2 lg:absolute lg:inset-y-0 lg:right-0 lg:flex lg:items-center lg:justify-end p-2 lg:p-8">
+      <div id="whats-happening" className="w-full lg:w-[calc(50%+4cm)] lg:absolute lg:inset-y-0 lg:right-0 lg:flex lg:items-center lg:justify-end p-2 lg:p-8">
         <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 shadow-lg overflow-y-auto" style={{ maxHeight: 'calc(100vh - 4rem)' }}>
           <ChatFeed />
         </div>
