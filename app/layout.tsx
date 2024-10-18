@@ -11,7 +11,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'fAIcechat | Solve problems with AI.',
-  description: 'Chat with fAIcechat',
+  description: 'Chat with AI models.',
 };
 
 export default function RootLayout({
