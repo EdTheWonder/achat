@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'fAIcechat',
+  title: 'fAIcechat | Solve problems with AI.',
   description: 'Chat with fAIcechat',
 };
 
