@@ -13,11 +13,11 @@ import { useRouter } from 'next/navigation';
 import { Twitter, Mail } from 'lucide-react';
 
 const schema = z.object({
-  email: z.string().email(),
+  emailOrUsername: z.string().min(1, "Email or username is required"),
   password: z.string().min(6),
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/, {
     message: "Username can only contain letters, numbers, and underscores",
-  }),
+  }).optional(),
 });
 
 const isUsernameUnique = async (username: string) => {
@@ -57,23 +57,26 @@ export default function AuthForm() {
   }, [supabase.auth, router]);
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
+    console.log("Form submitted", data);
     setIsLoading(true);
     try {
       if (isSignUp) {
-        const usernameUnique = await isUsernameUnique(data.username);
-        if (!usernameUnique) {
-          toast({
-            title: "Username already taken",
-            description: "Please choose a different username.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
+        if (data.username) {
+          const usernameUnique = await isUsernameUnique(data.username);
+          if (!usernameUnique) {
+            toast({
+              title: "Username already taken",
+              description: "Please choose a different username.",
+              variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+          }
         }
         
-        // Use Supabase's signUp method with additional data
+        console.log("Attempting to sign up with:", data.emailOrUsername);
         const { data: authData, error } = await supabase.auth.signUp({
-          email: data.email,
+          email: data.emailOrUsername,
           password: data.password,
           options: {
             data: {
@@ -82,32 +85,72 @@ export default function AuthForm() {
           },
         });
 
-        if (error) throw error;
-
-        if (authData.user) {
-          const { error: insertError } = await supabase
-            .from('users')
-            .insert({ id: authData.user.id, username: data.username });
-
-          if (insertError) {
-            console.error('Error inserting username:', insertError);
-            toast({
-              title: "Error saving username",
-              description: "Your account was created, but there was an issue saving your username.",
-              variant: "destructive",
-            });
-          }
-
-          router.push('/chat');
+        if (error) {
+          console.error("Sign up error:", error);
+          toast({
+            title: "Sign up failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
         }
 
-        toast({
-          title: "Account created successfully",
-          description: "Please check your email to confirm your account.",
-        });
+        if (authData.user) {
+          console.log("User created:", authData.user);
+          
+          // Wait for a short time to ensure the user is fully created
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          try {
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .upsert({ 
+                id: authData.user.id, 
+                username: data.username 
+              })
+              .select()
+              .single();
+
+            if (userError) {
+              console.error('Error saving user data:', userError);
+            } else {
+              console.log('User data saved successfully:', userData);
+              toast({
+                title: "Account created successfully",
+                description: "You can now log in with your new account.",
+              });
+            }
+          } catch (insertError) {
+            console.error('Error inserting user data:', insertError);
+          }
+
+          // Redirect regardless of username save status
+          router.push('/chat');
+        } else {
+          toast({
+            title: "Sign up failed",
+            description: "An unexpected error occurred. Please try again.",
+            variant: "destructive",
+          });
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword(data);
-        if (error) throw error;
+        console.log("Attempting to log in with:", data.emailOrUsername);
+        const { data: user, error } = await supabase.auth.signInWithPassword({
+          email: data.emailOrUsername,
+          password: data.password,
+        });
+
+        if (error) {
+          console.error("Login error:", error);
+          toast({
+            title: "Login failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log("User logged in:", user);
         toast({
           title: "Logged in successfully",
         });
@@ -115,13 +158,9 @@ export default function AuthForm() {
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
       toast({
         title: "Authentication error",
-        description: "Please check your credentials and try again. If the problem persists, contact support.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -131,10 +170,14 @@ export default function AuthForm() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google'
       });
       if (error) throw error;
+      if (data) {
+        // Store a flag in localStorage to indicate that the user needs to set a username
+        localStorage.setItem('needsUsername', 'true');
+      }
     } catch (error) {
       console.error('Google sign-in error:', error);
       toast({
@@ -168,9 +211,9 @@ export default function AuthForm() {
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)} className="space-y-4">
         <div className="flex flex-col items-start space-y-1">
-          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-          <Input id="email" {...register('email')} className="w-full" />
-          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
+          <Label htmlFor="emailOrUsername" className="text-sm font-medium">Email or Username</Label>
+          <Input id="emailOrUsername" {...register('emailOrUsername')} className="w-full" />
+          {errors.emailOrUsername && <p className="text-red-500 text-xs mt-1">{errors.emailOrUsername.message as string}</p>}
         </div>
         <div className="flex flex-col items-start space-y-1">
           <Label htmlFor="password" className="text-sm font-medium">Password</Label>

@@ -1,145 +1,152 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button } from '@chakra-ui/react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { toast } from 'react-toastify';
+import ChatInterface, { ChatInterfaceProps } from './ChatInterface';
+import { ChatEntry as ChatInterfaceEntry } from '@/types/chat';
 
-type ChatEntry = {
+type ChatEntry = ChatInterfaceEntry & {
   id: string;
   user_id: string;
+  thread_id: string;
   message: string;
   response: string;
   created_at: string;
   username: string;
 };
 
-const groupChatsByUser = (entries: ChatEntry[]) => {
-  return entries.reduce((acc, entry) => {
-    if (!acc[entry.user_id]) {
-      acc[entry.user_id] = [];
-    }
-    acc[entry.user_id].push(entry);
-    return acc;
-  }, {} as Record<string, ChatEntry[]>);
+type Thread = {
+  id: string;
+  messages: ChatEntry[];
+  isExpanded: boolean;
 };
 
 export default function ChatFeed() {
-  console.log('ChatFeed component rendering');
-  const [chatEntries, setChatEntries] = useState<ChatEntry[]>([]);
-  const [userEmails, setUserEmails] = useState<{[key: string]: string}>({});
-  const [expandedChats, setExpandedChats] = useState<{[key: string]: boolean}>({});
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [expandedThreadId, setExpandedThreadId] = useState<string | null>(null);
   const supabase = createClientComponentClient();
 
   useEffect(() => {
     const fetchChatEntries = async () => {
-      const { data, error } = await supabase
-        .from('chats')
-        .select('*, users(username)')
-        .order('created_at', { ascending: false })
-        .limit(50);
+      try {
+        const { data, error } = await supabase
+          .from('chats')
+          .select(`
+            id,
+            user_id,
+            thread_id,
+            message,
+            response,
+            created_at,
+            users (username)
+          `)
+          .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching chat entries:', error);
-      } else {
-        setChatEntries(data.map((entry: any) => ({
-          ...entry,
-          username: entry.users?.username || entry.users?.user_metadata?.username || 'Unknown User'
-        })));
+        if (error) {
+          console.error('Error fetching chat entries:', error);
+          toast.error(`Error fetching chat entries: ${error.message}`);
+        } else {
+          const groupedThreads = data.reduce((acc: { [key: string]: Thread }, entry: any) => {
+            if (!acc[entry.thread_id]) {
+              acc[entry.thread_id] = {
+                id: entry.thread_id,
+                messages: [],
+                isExpanded: false
+              };
+            }
+            acc[entry.thread_id].messages.push({
+              id: entry.id,
+              user_id: entry.user_id,
+              thread_id: entry.thread_id,
+              role: 'user',
+              message: entry.message,
+              response: entry.response,
+              created_at: entry.created_at,
+              username: entry.users?.username || 'Anonymous',
+            });
+            return acc;
+          }, {});
+          setThreads(Object.values(groupedThreads).sort((a, b) => 
+            new Date(b.messages[b.messages.length - 1].created_at).getTime() - new Date(a.messages[a.messages.length - 1].created_at).getTime()
+          ));
+        }
+      } catch (error) {
+        console.error('Unexpected error fetching chat entries:', error);
+        toast.error("An unexpected error occurred while fetching chat entries.");
       }
     };
 
     fetchChatEntries();
+  }, [supabase, toast]);
 
-    const subscription = supabase
-      .channel('public:chats')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'chats' },
-        async (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const { data: userData, error: userError } = await supabase
-              .from('users')
-              .select('username, user_metadata')
-              .eq('id', (payload.new as ChatEntry).user_id)
-              .single();
-            if (!userError) {
-              setChatEntries((prevEntries) => [{
-                ...(payload.new as ChatEntry), 
-                username: userData?.username || userData?.user_metadata?.username || 'Unknown User'
-              }, ...prevEntries]);
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            setChatEntries((prevEntries) =>
-              prevEntries.map((entry) =>
-                entry.id === (payload.new as ChatEntry).id 
-                  ? {...(payload.new as ChatEntry), username: entry.username || 'Unknown User'} 
-                  : entry
-              )
-            );
-          } else if (payload.eventType === 'DELETE') {
-            setChatEntries((prevEntries) =>
-              prevEntries.filter((entry) => entry.id !== (payload.old as ChatEntry).id)
-            );
-          }
-        }
-      )
-      .subscribe();
+  const toggleThreadExpansion = (threadId: string) => {
+    setExpandedThreadId(expandedThreadId === threadId ? null : threadId);
+  };
 
-    console.log('Setting up subscription...');
+  const renderThreadContent = (thread: Thread) => {
+    const isExpanded = expandedThreadId === thread.id;
+    const messagesToShow = isExpanded ? thread.messages : [thread.messages[0]];
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-
-
-  const toggleChatExpansion = (userId: string, chatIndex: number) => {
-    setExpandedChats(prev => ({
-      ...prev,
-      [`${userId}-${chatIndex}`]: !prev[`${userId}-${chatIndex}`]
-    }));
+    return (
+      <>
+        <div className="space-y-2">
+          {messagesToShow.map((message, index) => (
+            <React.Fragment key={index}>
+              <div className="bg-blue-100 text-black p-2 rounded-lg">
+                <p className="text-xs font-semibold mb-1">{message.username}</p>
+                <p className="text-sm">{message.message}</p>
+              </div>
+              {message.response && (
+                <div className="bg-gray-100 text-black p-2 rounded-lg">
+                  <p className="text-xs font-semibold mb-1">AI</p>
+                  <p className="text-sm">{message.response}</p>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        <Button onClick={() => toggleThreadExpansion(thread.id)} variant="ghost" size="sm" className="mt-2">
+          {isExpanded ? (
+            <>
+              <ChevronUp className="h-4 w-4 mr-2" />
+              Show Less
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-4 w-4 mr-2" />
+              View Full Thread
+            </>
+          )}
+        </Button>
+      </>
+    );
   };
 
   return (
-    <div className="space-y-4 px-4">
-      <h2 className="text-2xl font-bold">What's Happening</h2>
-      <div className="space-y-8 max-h-[calc(100vh-10rem)] overflow-y-auto">
-        {Object.entries(groupChatsByUser(chatEntries)).map(([userId, userChats]) => (
-          <div key={userId} className="space-y-4 border-b border-gray-200 pb-8">
-            <h3 className="font-semibold">
-              @{userChats[0].username || 'Unknown'}
-            </h3>
-            {userChats.map((entry, index) => (
-              <div key={`${entry.created_at}-${index}`} className="space-y-2">
-                <div className="flex justify-end">
-                  <div className="bg-blue-100 text-black p-2 rounded-lg max-w-[80%] break-words">
-                    <p className="text-sm">
-                      {expandedChats[`${userId}-${index}`] ? entry.message : `${entry.message.substring(0, 100)}${entry.message.length > 100 ? '...' : ''}`}
-                    </p>
-                    <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
-                  </div>
-                </div>
-                <div className="flex justify-start">
-                  <div className="bg-gray-100 text-black p-2 rounded-lg max-w-[80%] break-words">
-                    <p className="text-sm">
-                      {expandedChats[`${userId}-${index}`] ? entry.response : `${entry.response.substring(0, 100)}${entry.response.length > 100 ? '...' : ''}`}
-                    </p>
-                    <span className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</span>
-                  </div>
-                </div>
-                {(entry.message.length > 100 || entry.response.length > 100) && (
-                  <Button 
-                    variant="link" 
-                    size="sm" 
-                    className="text-blue-500 self-end"
-                    onClick={() => toggleChatExpansion(userId, index)}
-                  >
-                    {expandedChats[`${userId}-${index}`] ? 'Collapse' : 'View full chat'}
-                  </Button>
-                )}
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold mb-4">What's Happening</h2>
+      <div className="space-y-4 max-h-[calc(100vh-10rem)] overflow-y-auto">
+        {threads.map((thread) => (
+          <Card key={thread.id} className="w-full bg-white dark:bg-gray-800 bg-opacity-20 dark:bg-opacity-30 backdrop-blur-lg">
+            <CardHeader className="flex flex-row items-center gap-4">
+              <Avatar>
+                <AvatarFallback>{thread.messages[0]?.username.charAt(0).toUpperCase() || ''}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle className="text-lg">{thread.messages[0]?.username ? `@${thread.messages[0].username}` : ''}</CardTitle>
+                <p className="text-sm text-muted-foreground">{new Date(thread.messages[thread.messages.length - 1]?.created_at).toLocaleString()}</p>
               </div>
-            ))}
-          </div>
+            </CardHeader>
+            <CardContent>
+              {renderThreadContent(thread)}
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
