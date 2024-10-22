@@ -8,7 +8,7 @@ const TestPDF: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         <h1 className="text-2xl font-bold mb-4 text-center">Test PDF Upload</h1>
-        <PDFProcessor />
+        <PDFProcessor onUpload={() => {}} />
       </div>
     </div>
   );
