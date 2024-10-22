@@ -8,6 +8,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Upload } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export interface PDFProcessorProps {
   onUpload: (text: string) => void;
@@ -136,17 +137,24 @@ const PDFProcessor: React.FC<PDFProcessorProps> = ({ onUpload }) => {
           </CardContent>
         </Card>
       ) : summary ? (
-        <Card className="mt-4">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle>Summary</CardTitle>
-            <Button onClick={() => {setSummary(''); setFile(null);}} variant="outline" size="sm">
-              Clear
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-foreground whitespace-pre-wrap">{summary}</p>
-          </CardContent>
-        </Card>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">View Summary</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>PDF Summary</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              <p className="text-sm text-foreground whitespace-pre-wrap">{summary}</p>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => {setSummary(''); setFile(null);}} variant="outline">
+                Clear
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ) : null}
     </div>
   );

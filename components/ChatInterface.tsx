@@ -231,9 +231,9 @@ export default function ChatInterface({ initialMessages, threadId }: ChatInterfa
         <div className="space-y-2 max-h-[40vh] sm:max-h-[50vh] overflow-y-auto p-2 bg-gray-50 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-50 rounded-lg">
           {currentThread.messages.map((message, index) => (
             <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] break-words ${message.role === 'user' ? 'bg-blue-100 dark:bg-blue-900 text-black dark:text-white' : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white'} p-2 rounded-lg text-sm`}>
+              <div className={`max-w-[80%] break-words ${message.role === 'user' ? 'bg-blue-100 dark:bg-blue-900 text-black dark:text-white' : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white'} p-2 rounded-lg`}>
                 <strong className="mr-1 text-xs">{message.role === 'user' ? 'You:' : 'AI:'}</strong>
-                <span>{message.content}</span>
+                <div className="text-sm whitespace-pre-wrap">{message.content}</div>
               </div>
               {message.role === 'user' && (
                 <Button variant="ghost" size="sm" onClick={() => handleRetry(index)} disabled={isLoading} className="ml-1 self-end p-1">
